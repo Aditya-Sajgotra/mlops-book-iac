@@ -1,7 +1,7 @@
 name: build and package a model to container hub
 
 on:
-  push: 
+  push:
     branches: [main]
   workflow_dispatch:
 
@@ -9,28 +9,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Authenticate with azure
+        uses: azure/login@v3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Authenticate with azure
-      uses: azure/login@v3
-      with: 
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Install Azure ML Extension
+        run: az extension add -n ml -y
 
-    - name: Set auto install of extensions
-      run: az config set extension.use_dynamic_install=yes_without_prompt
+      - name: Configure Azure ML Defaults
+        run: |
+          az configure --defaults group="practical-mlops-book" workspace="ml-ws"
 
-    - name: Attach workspace
-      run: az ml folder attach -w "ml-ws" -g "practical-mlops-book"
+      - name: Retrieve the model
+        run: |
+          az ml model download --name "roberta-sequence" --version 1 --download-path "."
 
-    - name: Retrieve the model 
-      run: az ml model download -t "." --model-id "roberta-sequence:1" 
- 
-    - name: Build flask-app container 
-      uses: docker/build-push-action@v6
-      with: 
-        context: ./ 
-        file: ./Dockerfile 
-        push: false
-        tags: aditya-sajgotra/mlops-chap-4:latest
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build flask-app container
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: false
+          tags: aditya-sajgotra/mlops-chap-4:latest
