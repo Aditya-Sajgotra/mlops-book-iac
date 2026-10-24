@@ -22,7 +22,7 @@ jobs:
 
       - name: Configure Azure ML Defaults
         run: |
-          az configure --defaults group="anukhajuria089-rg" workspace="ml-auth"
+          az configure --defaults group="anukhajuria089-rg" workspace="Practical-mlops-book"
 
       - name: Retrieve the model
         run: |
