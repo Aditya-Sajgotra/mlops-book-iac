@@ -22,7 +22,7 @@ jobs:
 
       - name: Configure Azure ML Defaults
         run: |
-          az configure --defaults group="practical-mlops-book" workspace="ml-ws"
+          az configure --defaults group="practical-mlops-book" workspace="ml-auth"
 
       - name: Retrieve the model
         run: |
